@@ -1,0 +1,54 @@
+{
+  "name": "outbound-webhooks-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "lint": "tslint --project .",
+    "test": "npm run lint && jest",
+    "docs": "rimraf ./docs && typedoc src/ --out docs --mode modules --module commonjs --target es6 --excludePrivate && touch ./docs/.nojekyll && gh-pages -d docs -t",
+    "build": "npm run clean && npm run test && tsc",
+    "prepublish": "npm run build",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "tslint --fix",
+      "git add"
+    ]
+  },
+  "keywords": [
+    "outbound-webhooks-node",
+    "webhooks",
+    "webhook",
+    "api",
+    "rest"
+  ],
+  "author": "Josh Stout <joshstout@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenion/outbound-webhooks-node"
+  },
+  "dependencies": {
+    "got": "^9.6.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/got": "^9.6.9",
+    "@types/jest": "^24.0.22",
+    "@types/node": "^12.12.6",
+    "@types/uuid": "^3.4.6",
+    "gh-pages": "^2.1.1",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.4.2",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.1.0",
+    "tslint": "^5.20.1",
+    "tslint-config-standard": "^9.0.0",
+    "typedoc": "^0.15.0",
+    "typescript": "^3.7.2"
+  }
+}
