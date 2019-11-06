@@ -114,7 +114,7 @@ export class Webhooks {
       this._httpPost(hook, eventType, data)
     }
     return {
-      msg: `Successfully triggered ${webhooks.length} webhooks`,
+      msg: `Successfully triggered ${webhooks.length} webhook(s)`,
       webhookIds: webhooks.map(e => e.id)
     }
   }

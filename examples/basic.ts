@@ -33,7 +33,7 @@ import Webhooks from '../src/index'
     // const remove = await wh.remove('c96a2e7f-f930-4f58-8eea-b89dc693a678')
     // console.log(remove)
 
-    console.log(await wh.triggerByEvent('user.create', {
+    console.log('Trigger on user.create >>> ', await wh.triggerByEvent('user.create', {
       userId: 'joshstout@gmail.com',
       name: 'Josh Stout',
       password: 'jk... why would you have a password property you dummy'
