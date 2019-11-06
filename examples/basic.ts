@@ -11,10 +11,19 @@ import { Webhooks, MemoryStorageProvider } from '../src/index'
         'ur.mom'
       ]
     })
+
     const all = await wh.getAll()
     console.log('All >>> ', all)
-    const byEvent = await wh.getByEvents('ur.mom')
-    console.log('By Event >>> ', byEvent)
+
+    const byOneEvent = await wh.getByEvents('ur.mom')
+    console.log('By Event >>> ', byOneEvent)
+
+    const byMultipleEvents = await wh.getByEvents([
+      'ur.mom',
+      'user.update'
+    ])
+    console.log('by Multiple Events >>> ', byMultipleEvents)
+
   } catch (e) {
     console.log(e)
   }
