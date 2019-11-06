@@ -28,7 +28,7 @@ interface IWebhookObject {
   modified: string
 }
 
-class Webhooks {
+export class Webhooks {
   private config: IConfig
   private db: IStorageProvider
 
@@ -89,7 +89,7 @@ class Webhooks {
   }
 }
 
-class MemoryStorageProvider {
+export class MemoryStorageProvider {
   db: IWebhookObject[]
 
   constructor () {
@@ -125,16 +125,7 @@ class MemoryStorageProvider {
   }
 }
 
-;(async () => {
-  try {
-    let wh = new Webhooks()
-    await wh.add({
-      url: 'https://localhost/urmom',
-      events: ['sup']
-    })
-    const all = await wh.getAll()
-    console.log(all)
-  } catch (e) {
-    console.log(e)
-  }
-})()
+export default {
+  Webhooks,
+  MemoryStorageProvider
+}
