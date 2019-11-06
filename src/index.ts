@@ -126,7 +126,6 @@ export class Webhooks {
 
   private async _httpPost (webhookObject: IWebhookObject, eventType: string, data: any) {
     let url = webhookObject.url
-    if (webhookObject.authentication) url += `?authToken=${webhookObject.authToken}`
     const jsonBody: any = {
       event: eventType,
       webhookId: webhookObject.id,
@@ -134,12 +133,17 @@ export class Webhooks {
       data: data
     }
     try {
-      return got.post(url, {
+      const gotConfig = {
         followRedirect: false,
         rejectUnauthorized: false,
         json: true,
-        body: jsonBody
-      })
+        body: jsonBody,
+        headers: {}
+      }
+      if (webhookObject.authentication) gotConfig.headers = {
+        Authorization: `WH ${webhookObject.authToken}`
+      }
+      return got.post(url, gotConfig)
     } catch (e) {
       console.error(e)
     }

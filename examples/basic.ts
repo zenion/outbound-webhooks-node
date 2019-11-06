@@ -7,7 +7,7 @@ import Webhooks from '../src/index'
     })
     await wh.add({
       url: 'https://localhost/urmom',
-      tags: ['IMPORTANT'],
+      tags: ['ABC'],
       events: [
         'user.create',
         'user.update',
@@ -27,7 +27,7 @@ import Webhooks from '../src/index'
     ])
     console.log('by Multiple Events >>> ', byMultipleEvents)
 
-    const byTag = await wh.getByTag('ACP')
+    const byTag = await wh.getByTag('ABC')
     console.log('By Tag >>> ', byTag)
 
     // const remove = await wh.remove('c96a2e7f-f930-4f58-8eea-b89dc693a678')
