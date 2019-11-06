@@ -1,4 +1,9 @@
+import crypto from 'crypto'
+import got from 'got'
 import uuidv4 from 'uuid/v4'
+
+import MemoryStorageProvider from './providers/memory'
+import LocalDiskStorageProvider from './providers/localDisk'
 
 interface IConfig {
   storageProvider?: IStorageProvider
@@ -7,22 +12,27 @@ interface IConfig {
 interface IStorageProvider {
   getAll: () => Promise<IWebhookObject[]>,
   getById: (webhookId: string) => Promise<IWebhookObject|null>,
-  getByEvent: (eventType: string) => Promise<IWebhookObject[]|null>
+  getByEvent: (eventType: string) => Promise<IWebhookObject[]|null>,
+  getByTag: (tag: string) => Promise<IWebhookObject[]|null>,
   add: (webhook: IWebhookObject) => Promise<IWebhookObject>,
   remove: (webhookId: string) => Promise<boolean>
 }
 
 interface IWebhookObjectCreate {
   id?: string,
+  tags?: string[],
   url: string,
   events: string[],
+  authentication?: boolean,
   authToken?: string
 }
 
-interface IWebhookObject {
+export interface IWebhookObject {
   id: string,
+  tags: string[],
   url: string,
   events: string[],
+  authentication: boolean,
   authToken: string,
   created: string,
   modified: string
@@ -31,6 +41,8 @@ interface IWebhookObject {
 export class Webhooks {
   private config: IConfig
   private db: IStorageProvider
+  static MemoryStorageProvider = MemoryStorageProvider
+  static LocalDiskStorageProvider = LocalDiskStorageProvider
 
   constructor (_config?: IConfig) {
     this.config = _config || {}
@@ -45,6 +57,12 @@ export class Webhooks {
     const webhook = await this.db.getById(webhookId)
     if (!webhook) return null
     return webhook
+  }
+
+  async getByTag (tag: string): Promise<IWebhookObject[]|null> {
+    const webhooks = await this.db.getByTag(tag)
+    if (!webhooks) return null
+    return webhooks
   }
 
   async getByEvents (events: string | string[]): Promise<IWebhookObject[]|null> {
@@ -71,61 +89,61 @@ export class Webhooks {
     const createdDate = new Date()
     const objectToAdd = {
       id: id,
+      tags: webhookObject.tags || [],
       url: webhookObject.url,
+      events: webhookObject.events,
+      authentication: webhookObject.authentication || true,
+      authToken: this._generateAuthToken(),
       created: createdDate.toJSON(),
       modified: createdDate.toJSON(),
-      events: webhookObject.events,
-      authToken: webhookObject.authToken || ''
     }
     await this.db.add(objectToAdd)
-    // we will do the event listener registration here
     return this.db.getById(id)
   }
 
   async remove (webhookId: string): Promise<boolean> {
     await this.db.remove(webhookId)
-    // deregister the event listener here
     return true
   }
+
+  async triggerByEvent (eventType: string, data: any, tagFilter?: string) {
+    let webhooks = await this.db.getByEvent(eventType)
+    if (!webhooks) return null
+    if (tagFilter) webhooks = webhooks.filter(e => e.tags.includes(tagFilter))
+    for (const hook of webhooks) {
+      this._httpPost(hook, eventType, data)
+    }
+    return {
+      msg: `Successfully triggered ${webhooks.length} webhooks`,
+      webhookIds: webhooks.map(e => e.id)
+    }
+  }
+
+  private _generateAuthToken () {
+    const number = Math.random() * 100000
+    return crypto.createHash('sha1').update(number.toString()).digest('hex')
+  }
+
+  private async _httpPost (webhookObject: IWebhookObject, eventType: string, data: any) {
+    let url = webhookObject.url
+    if (webhookObject.authentication) url += `?authToken=${webhookObject.authToken}`
+    const jsonBody: any = {
+      event: eventType,
+      webhookId: webhookObject.id,
+      webhookSentAt: new Date().toJSON(),
+      data: data
+    }
+    try {
+      return got.post(url, {
+        followRedirect: false,
+        rejectUnauthorized: false,
+        json: true,
+        body: jsonBody
+      })
+    } catch (e) {
+      console.error(e)
+    }
+  }
 }
 
-export class MemoryStorageProvider {
-  db: IWebhookObject[]
-
-  constructor () {
-    this.db = []
-  }
-
-  async getAll (): Promise<IWebhookObject[]> {
-    return this.db
-  }
-
-  async getById (webhookId: string): Promise<IWebhookObject|null> {
-    const webhook = this.db.find(e => e.id === webhookId)
-    if (!webhook) return null
-    return webhook
-  }
-
-  async getByEvent (eventType: string): Promise<IWebhookObject[]|null> {
-      const webhooks = this.db.filter(e => e.events.includes(eventType))
-      if (!webhooks.length) return null
-      return webhooks
-  }
-
-  async add (webhook: IWebhookObject): Promise<IWebhookObject> {
-    this.db.push(webhook)
-    const result = this.db.find(e => e.id === webhook.id)
-    if (!result) throw new Error('Error adding object to in-memory database')
-    return result
-  }
-
-  async remove (): Promise<boolean> {
-    // do some removals
-    return true
-  }
-}
-
-export default {
-  Webhooks,
-  MemoryStorageProvider
-}
+export default Webhooks

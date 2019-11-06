@@ -33,6 +33,7 @@
     "url": "https://github.com/zenion/outbound-webhooks-node"
   },
   "dependencies": {
+    "conf": "^6.2.0",
     "got": "^9.6.0",
     "uuid": "^3.3.3"
   },
