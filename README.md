@@ -1,4 +1,4 @@
-# Outbound Webhooks Framework for NodeJS
+# A promise (async/await) based Outbound Webhooks framework for NodeJS
 
 Flexible framework for managing outbound webhooks from a NodeJS application. Still a work in progress but features will include:
 

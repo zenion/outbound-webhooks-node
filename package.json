@@ -1,7 +1,7 @@
 {
   "name": "outbound-webhooks-node",
   "version": "1.0.0",
-  "description": "",
+  "description": "A promise (async/await) based Outbound Webhooks framework for NodeJS",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
@@ -24,7 +24,9 @@
     "webhooks",
     "webhook",
     "api",
-    "rest"
+    "http",
+    "async",
+    "promise"
   ],
   "author": "Josh Stout <joshstout@gmail.com>",
   "license": "MIT",
