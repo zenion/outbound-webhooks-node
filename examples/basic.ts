@@ -1,3 +1,4 @@
+// tslint:disable
 import Webhooks from '../src/index'
 
 ;(async () => {

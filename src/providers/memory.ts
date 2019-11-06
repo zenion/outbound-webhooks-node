@@ -14,22 +14,22 @@ export class MemoryStorageProvider {
     return this.db
   }
 
-  async getById (webhookId: string): Promise<IWebhookObject|null> {
+  async getById (webhookId: string): Promise<IWebhookObject | null> {
     const webhook = this.db.find(e => e.id === webhookId)
     if (!webhook) return null
     return webhook
   }
 
-  async getByTag (tag: string): Promise<IWebhookObject[]|null> {
+  async getByTag (tag: string): Promise<IWebhookObject[] | null> {
     const webhooks = this.db.filter(e => e.tags.includes(tag))
     if (!webhooks.length) return null
     return webhooks
-}
+  }
 
-  async getByEvent (eventType: string): Promise<IWebhookObject[]|null> {
-      const webhooks = this.db.filter(e => e.events.includes(eventType))
-      if (!webhooks.length) return null
-      return webhooks
+  async getByEvent (eventType: string): Promise<IWebhookObject[] | null> {
+    const webhooks = this.db.filter(e => e.events.includes(eventType))
+    if (!webhooks.length) return null
+    return webhooks
   }
 
   async add (webhook: IWebhookObject): Promise<IWebhookObject> {

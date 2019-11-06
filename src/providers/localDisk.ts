@@ -28,25 +28,25 @@ export class LocalDiskStorageProvider {
     return this.db.get('webhooks')
   }
 
-  async getById (webhookId: string): Promise<IWebhookObject|null> {
+  async getById (webhookId: string): Promise<IWebhookObject | null> {
     const webhooks: IWebhookObject[] = this.db.get('webhooks')
     const webhook = webhooks.find(e => e.id === webhookId)
     if (!webhook) return null
     return webhook
   }
 
-  async getByTag (tag: string): Promise<IWebhookObject[]|null> {
+  async getByTag (tag: string): Promise<IWebhookObject[] | null> {
     const webhooks: IWebhookObject[] = this.db.get('webhooks')
     const filteredWebhooks = webhooks.filter(e => e.tags.includes(tag))
     if (!filteredWebhooks.length) return null
     return filteredWebhooks
-}
+  }
 
-  async getByEvent (eventType: string): Promise<IWebhookObject[]|null> {
-      const webhooks: IWebhookObject[] = this.db.get('webhooks')
-      const filteredWebhooks = webhooks.filter(e => e.events.includes(eventType))
-      if (!filteredWebhooks.length) return null
-      return filteredWebhooks
+  async getByEvent (eventType: string): Promise<IWebhookObject[] | null> {
+    const webhooks: IWebhookObject[] = this.db.get('webhooks')
+    const filteredWebhooks = webhooks.filter(e => e.events.includes(eventType))
+    if (!filteredWebhooks.length) return null
+    return filteredWebhooks
   }
 
   async add (webhook: IWebhookObject): Promise<IWebhookObject> {

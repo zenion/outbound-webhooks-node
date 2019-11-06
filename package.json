@@ -6,7 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib",
-    "lint": "tslint --project .",
+    "lint": "tslint --project '.'",
     "test": "npm run lint && jest",
     "docs": "rimraf ./docs && typedoc src/ --out docs --mode modules --module commonjs --target es6 --excludePrivate && touch ./docs/.nojekyll && gh-pages -d docs -t",
     "build": "npm run clean && npm run test && tsc",

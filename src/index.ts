@@ -11,9 +11,9 @@ interface IConfig {
 
 interface IStorageProvider {
   getAll: () => Promise<IWebhookObject[]>,
-  getById: (webhookId: string) => Promise<IWebhookObject|null>,
-  getByEvent: (eventType: string) => Promise<IWebhookObject[]|null>,
-  getByTag: (tag: string) => Promise<IWebhookObject[]|null>,
+  getById: (webhookId: string) => Promise<IWebhookObject | null>,
+  getByEvent: (eventType: string) => Promise<IWebhookObject[] | null>,
+  getByTag: (tag: string) => Promise<IWebhookObject[] | null>,
   add: (webhook: IWebhookObject) => Promise<IWebhookObject>,
   remove: (webhookId: string) => Promise<boolean>
 }
@@ -53,19 +53,19 @@ export class Webhooks {
     return this.db.getAll()
   }
 
-  async getById (webhookId: string): Promise<IWebhookObject|null> {
+  async getById (webhookId: string): Promise<IWebhookObject | null> {
     const webhook = await this.db.getById(webhookId)
     if (!webhook) return null
     return webhook
   }
 
-  async getByTag (tag: string): Promise<IWebhookObject[]|null> {
+  async getByTag (tag: string): Promise<IWebhookObject[] | null> {
     const webhooks = await this.db.getByTag(tag)
     if (!webhooks) return null
     return webhooks
   }
 
-  async getByEvents (events: string | string[]): Promise<IWebhookObject[]|null> {
+  async getByEvents (events: string | string[]): Promise<IWebhookObject[] | null> {
     if (typeof events === 'string') events = [events]
     const webhooks: IWebhookObject[] = []
     for (const event of events) {
@@ -80,11 +80,9 @@ export class Webhooks {
   }
 
   async add (webhookObject: IWebhookObjectCreate) {
-    if (!webhookObject || typeof webhookObject !== 'object') throw new Error('Invalid input to add function')
     if (!webhookObject.url) throw new Error('Missing url parameter on webhook object')
     if (!webhookObject.events || !Array.isArray(webhookObject.events)) throw new Error('Missing events parameter or is not an array')
     if (!webhookObject.events.length) throw new Error('events parameter requires at least one event')
-    if (webhookObject.authToken && typeof webhookObject.authToken !== 'string') throw new Error('authToken parameter must be of type string')
     const id = uuidv4()
     const createdDate = new Date()
     const objectToAdd = {
@@ -95,7 +93,7 @@ export class Webhooks {
       authentication: webhookObject.authentication || true,
       authToken: this._generateAuthToken(),
       created: createdDate.toJSON(),
-      modified: createdDate.toJSON(),
+      modified: createdDate.toJSON()
     }
     await this.db.add(objectToAdd)
     return this.db.getById(id)
@@ -111,6 +109,7 @@ export class Webhooks {
     if (!webhooks) return null
     if (tagFilter) webhooks = webhooks.filter(e => e.tags.includes(tagFilter))
     for (const hook of webhooks) {
+      // tslint:disable-next-line:no-floating-promises
       this._httpPost(hook, eventType, data)
     }
     return {
@@ -120,8 +119,8 @@ export class Webhooks {
   }
 
   private _generateAuthToken () {
-    const number = Math.random() * 100000
-    return crypto.createHash('sha1').update(number.toString()).digest('hex')
+    const randomNum = Math.random() * 100000
+    return crypto.createHash('sha1').update(randomNum.toString()).digest('hex')
   }
 
   private async _httpPost (webhookObject: IWebhookObject, eventType: string, data: any) {
@@ -140,8 +139,10 @@ export class Webhooks {
         body: jsonBody,
         headers: {}
       }
-      if (webhookObject.authentication) gotConfig.headers = {
-        Authorization: `WH ${webhookObject.authToken}`
+      if (webhookObject.authentication) {
+        gotConfig.headers = {
+          Authorization: `WH ${webhookObject.authToken}`
+        }
       }
       return got.post(url, gotConfig)
     } catch (e) {

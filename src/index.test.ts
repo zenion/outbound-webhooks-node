@@ -1,3 +1,3 @@
-it('does nothing for now', () => {
+it('does nothing for now', (): void => {
   expect(true).toEqual(true)
 })
