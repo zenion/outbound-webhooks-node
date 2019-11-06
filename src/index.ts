@@ -23,7 +23,9 @@ interface IWebhookObject {
   id: string,
   url: string,
   events: string[],
-  authToken: string
+  authToken: string,
+  created: string,
+  modified: string
 }
 
 class Webhooks {
@@ -39,13 +41,13 @@ class Webhooks {
     return this.db.getAll()
   }
 
-  async getById (webhookId: string): Promise<IWebhookObject> {
+  async getById (webhookId: string): Promise<IWebhookObject|null> {
     const webhook = await this.db.getById(webhookId)
-    if (!webhook) throw new Error(`Unable to find webhook with id ${webhookId}`)
+    if (!webhook) return null
     return webhook
   }
 
-  async getByEvents (events: string | string[]): Promise<IWebhookObject[]> {
+  async getByEvents (events: string | string[]): Promise<IWebhookObject[]|null> {
     if (typeof events === 'string') events = [events]
     const webhooks: IWebhookObject[] = []
     for (const event of events) {
@@ -55,22 +57,36 @@ class Webhooks {
         if (!webhooks.find(e => e.id === result.id)) webhooks.push(result)
       }
     }
+    if (!webhooks.length) return null
     return webhooks
   }
 
   async add (webhookObject: IWebhookObjectCreate) {
+    if (!webhookObject || typeof webhookObject !== 'object') throw new Error('Invalid input to add function')
+    if (!webhookObject.url) throw new Error('Missing url parameter on webhook object')
+    if (!webhookObject.events || !Array.isArray(webhookObject.events)) throw new Error('Missing events parameter or is not an array')
+    if (!webhookObject.events.length) throw new Error('events parameter requires at least one event')
+    if (webhookObject.authToken && typeof webhookObject.authToken !== 'string') throw new Error('authToken parameter must be of type string')
     const id = uuidv4()
+    const createdDate = new Date()
     const objectToAdd = {
       id: id,
       url: webhookObject.url,
+      created: createdDate.toJSON(),
+      modified: createdDate.toJSON(),
       events: webhookObject.events,
       authToken: webhookObject.authToken || ''
     }
     await this.db.add(objectToAdd)
+    // we will do the event listener registration here
     return this.db.getById(id)
   }
 
-  async remove (webhookId: string) {}
+  async remove (webhookId: string): Promise<boolean> {
+    await this.db.remove(webhookId)
+    // deregister the event listener here
+    return true
+  }
 }
 
 class MemoryStorageProvider {
@@ -114,13 +130,9 @@ class MemoryStorageProvider {
     let wh = new Webhooks()
     await wh.add({
       url: 'https://localhost/urmom',
-      events: [
-        'customer.create',
-        'customer.modify',
-        'user.delete'
-      ]
+      events: ['sup']
     })
-    const all = await wh.getByEvents('user.delete')
+    const all = await wh.getAll()
     console.log(all)
   } catch (e) {
     console.log(e)
