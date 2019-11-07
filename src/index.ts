@@ -39,28 +39,28 @@ export interface IWebhookObject {
 }
 
 export class Webhooks {
-  private config: IConfig
-  private db: IStorageProvider
+  private _config: IConfig
+  private _db: IStorageProvider
   static MemoryStorageProvider = MemoryStorageProvider
   static LocalDiskStorageProvider = LocalDiskStorageProvider
 
   constructor (_config?: IConfig) {
-    this.config = _config || {}
-    this.db = this.config.storageProvider || new MemoryStorageProvider()
+    this._config = _config || {}
+    this._db = this._config.storageProvider || new MemoryStorageProvider()
   }
 
   async getAll () {
-    return this.db.getAll()
+    return this._db.getAll()
   }
 
   async getById (webhookId: string): Promise<IWebhookObject | null> {
-    const webhook = await this.db.getById(webhookId)
+    const webhook = await this._db.getById(webhookId)
     if (!webhook) return null
     return webhook
   }
 
   async getByTag (tag: string): Promise<IWebhookObject[] | null> {
-    const webhooks = await this.db.getByTag(tag)
+    const webhooks = await this._db.getByTag(tag)
     if (!webhooks) return null
     return webhooks
   }
@@ -69,7 +69,7 @@ export class Webhooks {
     if (typeof events === 'string') events = [events]
     const webhooks: IWebhookObject[] = []
     for (const event of events) {
-      const results = await this.db.getByEvent(event)
+      const results = await this._db.getByEvent(event)
       if (!results) continue
       for (const result of results) {
         if (!webhooks.find(e => e.id === result.id)) webhooks.push(result)
@@ -95,17 +95,17 @@ export class Webhooks {
       created: createdDate.toJSON(),
       modified: createdDate.toJSON()
     }
-    await this.db.add(objectToAdd)
-    return this.db.getById(id)
+    await this._db.add(objectToAdd)
+    return this._db.getById(id)
   }
 
   async remove (webhookId: string): Promise<boolean> {
-    await this.db.remove(webhookId)
+    await this._db.remove(webhookId)
     return true
   }
 
   async triggerByEvent (eventType: string, data: any, tagFilter?: string) {
-    let webhooks = await this.db.getByEvent(eventType)
+    let webhooks = await this._db.getByEvent(eventType)
     if (!webhooks) return null
     if (tagFilter) webhooks = webhooks.filter(e => e.tags.includes(tagFilter))
     for (const hook of webhooks) {
@@ -145,9 +145,7 @@ export class Webhooks {
         }
       }
       return got.post(url, gotConfig)
-    } catch (e) {
-      console.error(e)
-    }
+    } catch {}
   }
 }
 
