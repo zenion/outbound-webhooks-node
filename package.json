@@ -1,12 +1,12 @@
 {
-  "name": "outbound-webhooks-node",
+  "name": "outbound-webhooks",
   "version": "1.0.0",
   "description": "A promise (async/await) based Outbound Webhooks framework for NodeJS",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib",
-    "lint": "tslint --project '.'",
+    "lint": "tslint --project tsconfig.json",
     "test": "npm run lint && jest",
     "docs": "rimraf ./docs && typedoc src/ --out docs --mode modules --module commonjs --target es6 --excludePrivate && touch ./docs/.nojekyll && gh-pages -d docs -t",
     "build": "npm run clean && npm run test && tsc",
