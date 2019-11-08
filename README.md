@@ -1,6 +1,6 @@
 # A promise (async/await) based Outbound Webhooks framework for NodeJS
 
-Flexible framework for managing outbound webhooks from a NodeJS application. Still a work in progress but features will include:
+Flexible framework for managing outbound webhooks from a NodeJS application. Still a work in progress but features include:
 
 - Ability to plugin different custom storage providers (built-in memory and json providers)
 - Event driven architecture (create arbitrary events, trigger on them to any subscribers of said events)
