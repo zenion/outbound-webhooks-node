@@ -6,15 +6,21 @@ import Webhooks from '../src/index'
     let wh = new Webhooks({
       storageProvider: new Webhooks.LocalDiskStorageProvider()
     })
-    await wh.add({
-      url: 'https://localhost/urmom',
-      tags: ['ABC'],
-      events: [
-        'user.create',
-        'user.update',
-        'ur.mom'
-      ]
+
+    wh.emitter.on('error', (ctx) => {
+      console.log(ctx.msg)
     })
+
+
+    // await wh.add({
+    //   url: 'https://localhost/urmom',
+    //   tags: ['ABC'],
+    //   events: [
+    //     'user.create',
+    //     'user.update',
+    //     'ur.mom'
+    //   ]
+    // })
 
     const all = await wh.getAll()
     console.log('All >>> ', all)
@@ -30,9 +36,6 @@ import Webhooks from '../src/index'
 
     const byTag = await wh.getByTag('ABC')
     console.log('By Tag >>> ', byTag)
-
-    // const remove = await wh.remove('c96a2e7f-f930-4f58-8eea-b89dc693a678')
-    // console.log(remove)
 
     console.log('Trigger on user.create >>> ', await wh.triggerByEvent('user.create', {
       userId: 'joshstout@gmail.com',
