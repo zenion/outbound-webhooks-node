@@ -133,7 +133,7 @@ export class Webhooks {
         })
     }
     return {
-      msg: `Successfully triggered ${webhooks.length} webhook(s)`,
+      msg: `Triggered ${webhooks.length} webhook(s)`,
       webhookIds: webhooks.map(e => e.id)
     }
   }

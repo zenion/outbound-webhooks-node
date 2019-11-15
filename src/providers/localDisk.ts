@@ -21,7 +21,6 @@ export class LocalDiskStorageProvider {
         }
       }
     })
-    console.log(this.db)
   }
 
   async getAll (): Promise<IWebhookObject[]> {

@@ -2,6 +2,6 @@
 
 Flexible framework for managing outbound webhooks from a NodeJS application. Still a work in progress but features include:
 
-- Ability to plugin different custom storage providers (built-in memory and json providers)
+- Ability to plugin different custom storage providers (built-in memory and disk providers)
 - Event driven architecture (create arbitrary events, trigger on them to any subscribers of said events)
 - Ability to store arbitrary metadata inside the webhooks (perhaps you want to have your own custom data/references embedded in the webhook itself)

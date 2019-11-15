@@ -12,30 +12,30 @@ import Webhooks from '../src/index'
     })
 
 
-    // await wh.add({
-    //   url: 'https://localhost/urmom',
-    //   tags: ['ABC'],
-    //   events: [
-    //     'user.create',
-    //     'user.update',
-    //     'ur.mom'
-    //   ]
-    // })
+    await wh.add({
+      url: 'https://localhost/urmom',
+      tags: ['ABC'],
+      events: [
+        'user.create',
+        'user.update',
+        'ur.mom'
+      ]
+    })
 
     const all = await wh.getAll()
     console.log('All >>> ', all)
 
-    const byOneEvent = await wh.getByEvents('ur.mom')
-    console.log('By Event >>> ', byOneEvent)
+    // const byOneEvent = await wh.getByEvents('ur.mom')
+    // console.log('By Event >>> ', byOneEvent)
 
-    const byMultipleEvents = await wh.getByEvents([
-      'ur.mom',
-      'user.update'
-    ])
-    console.log('by Multiple Events >>> ', byMultipleEvents)
+    // const byMultipleEvents = await wh.getByEvents([
+    //   'ur.mom',
+    //   'user.update'
+    // ])
+    // console.log('by Multiple Events >>> ', byMultipleEvents)
 
-    const byTag = await wh.getByTag('ABC')
-    console.log('By Tag >>> ', byTag)
+    // const byTag = await wh.getByTag('ABC')
+    // console.log('By Tag >>> ', byTag)
 
     console.log('Trigger on user.create >>> ', await wh.triggerByEvent('user.create', {
       userId: 'joshstout@gmail.com',
