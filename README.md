@@ -120,6 +120,58 @@ const Webhooks = require('outbound-webhooks');
 })()
 ```
 
+## Creating Your Own Backend
+
+To create a connector to store your webhook data to your own database, simply create a class that implements the following example's schema and then supply an instance in the constructor to this library on the "storageProvider" key
+
+#### Backend Connector Memory Example
+```js
+class MemoryStorageProvider {
+  constructor () {
+    this.db = []
+  }
+
+  async getAll () {
+    return this.db
+  }
+
+  async getById (webhookId) {
+    const webhook = this.db.find(e => e.id === webhookId)
+    if (!webhook) return null
+    return webhook
+  }
+
+  async getByTag (tag) {
+    const webhooks = this.db.filter(e => e.tags.includes(tag))
+    if (!webhooks.length) return null
+    return webhooks
+  }
+
+  async getByEvent (eventType) {
+    const webhooks = this.db.filter(e => e.events.includes(eventType))
+    if (!webhooks.length) return null
+    return webhooks
+  }
+
+  async add (webhook) {
+    this.db.push(webhook)
+    const result = this.db.find(e => e.id === webhook.id)
+    if (!result) throw new Error('Error adding object to in-memory database')
+    return result
+  }
+
+  async remove (webhookId) {
+    const result = this.db.findIndex(e => e.id === webhookId)
+    if (result === -1) throw new Error(`Unable to find webhook with id ${webhookId}`)
+    this.db.splice(result, 1)
+    return true
+  }
+}
+
+module.exports = MemoryStorageProvider
+```
+
+Builtin providers can be found in the [src/providers](src/providers) directory for inspiration.
 
 ## API
 
