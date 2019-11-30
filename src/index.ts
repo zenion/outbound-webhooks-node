@@ -22,6 +22,7 @@ interface IStorageProvider {
 interface IWebhookObjectCreate {
   id?: string,
   tags?: string[],
+  meta?: object
   url: string,
   events: string[],
   authentication?: boolean,
@@ -91,6 +92,7 @@ export class Webhooks {
     const objectToAdd = {
       id: id,
       tags: webhookObject.tags || [],
+      meta: webhookObject.meta || {},
       url: webhookObject.url,
       events: webhookObject.events,
       authentication: webhookObject.authentication || true,

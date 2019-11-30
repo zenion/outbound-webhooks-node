@@ -19,7 +19,10 @@ import Webhooks from '../src/index'
         'user.create',
         'user.update',
         'ur.mom'
-      ]
+      ],
+      meta: {
+        key: 'value'
+      }
     })
 
     const all = await wh.getAll()
