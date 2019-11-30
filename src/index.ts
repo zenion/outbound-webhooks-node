@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { EventEmitter } from 'events'
 import got from 'got'
 import uuidv4 from 'uuid/v4'
 
@@ -39,28 +40,30 @@ export interface IWebhookObject {
 }
 
 export class Webhooks {
-  private _config: IConfig
-  private _db: IStorageProvider
+  private config: IConfig
+  private db: IStorageProvider
+  emitter: EventEmitter
   static MemoryStorageProvider = MemoryStorageProvider
   static LocalDiskStorageProvider = LocalDiskStorageProvider
 
   constructor (_config?: IConfig) {
-    this._config = _config || {}
-    this._db = this._config.storageProvider || new MemoryStorageProvider()
+    this.config = _config || {}
+    this.db = this.config.storageProvider || new MemoryStorageProvider()
+    this.emitter = new EventEmitter()
   }
 
   async getAll () {
-    return this._db.getAll()
+    return this.db.getAll()
   }
 
   async getById (webhookId: string): Promise<IWebhookObject | null> {
-    const webhook = await this._db.getById(webhookId)
+    const webhook = await this.db.getById(webhookId)
     if (!webhook) return null
     return webhook
   }
 
   async getByTag (tag: string): Promise<IWebhookObject[] | null> {
-    const webhooks = await this._db.getByTag(tag)
+    const webhooks = await this.db.getByTag(tag)
     if (!webhooks) return null
     return webhooks
   }
@@ -69,7 +72,7 @@ export class Webhooks {
     if (typeof events === 'string') events = [events]
     const webhooks: IWebhookObject[] = []
     for (const event of events) {
-      const results = await this._db.getByEvent(event)
+      const results = await this.db.getByEvent(event)
       if (!results) continue
       for (const result of results) {
         if (!webhooks.find(e => e.id === result.id)) webhooks.push(result)
@@ -95,25 +98,42 @@ export class Webhooks {
       created: createdDate.toJSON(),
       modified: createdDate.toJSON()
     }
-    await this._db.add(objectToAdd)
-    return this._db.getById(id)
+    await this.db.add(objectToAdd)
+    return this.db.getById(id)
   }
 
   async remove (webhookId: string): Promise<boolean> {
-    await this._db.remove(webhookId)
+    await this.db.remove(webhookId)
     return true
   }
 
   async triggerByEvent (eventType: string, data: any, tagFilter?: string) {
-    let webhooks = await this._db.getByEvent(eventType)
+    let webhooks = await this.db.getByEvent(eventType)
     if (!webhooks) return null
     if (tagFilter) webhooks = webhooks.filter(e => e.tags.includes(tagFilter))
-    for (const hook of webhooks) {
+
+    for (let hook of webhooks) {
       // tslint:disable-next-line:no-floating-promises
       this._httpPost(hook, eventType, data)
+        .then(res => {
+          this.emitter.emit('response', {
+            webhookId: hook.id,
+            type: 'HTTP_SEND_RESPONSE',
+            msg: `Received response from server for webhook with ID: ${hook.id}`,
+            response: res
+          })
+        })
+        .catch(err => {
+          this.emitter.emit('error', {
+            webhookId: hook.id,
+            type: 'HTTP_SEND_ERROR',
+            msg: `Error triggering webhook with ID: ${hook.id}`,
+            error: err
+          })
+        })
     }
     return {
-      msg: `Successfully triggered ${webhooks.length} webhook(s)`,
+      msg: `Triggered ${webhooks.length} webhook(s)`,
       webhookIds: webhooks.map(e => e.id)
     }
   }
@@ -131,21 +151,20 @@ export class Webhooks {
       webhookSentAt: new Date().toJSON(),
       data: data
     }
-    try {
-      const gotConfig = {
-        followRedirect: false,
-        rejectUnauthorized: false,
-        json: true,
-        body: jsonBody,
-        headers: {}
+    const gotConfig = {
+      followRedirect: false,
+      rejectUnauthorized: false,
+      json: true,
+      body: jsonBody,
+      headers: {}
+    }
+
+    if (webhookObject.authentication) {
+      gotConfig.headers = {
+        Authorization: `WH ${webhookObject.authToken}`
       }
-      if (webhookObject.authentication) {
-        gotConfig.headers = {
-          Authorization: `WH ${webhookObject.authToken}`
-        }
-      }
-      return got.post(url, gotConfig)
-    } catch {}
+    }
+    return got.post(url, gotConfig)
   }
 }
 
