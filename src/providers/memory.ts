@@ -1,7 +1,16 @@
 // an in-memory storage provider for outbound-webhooks framework (really just for testing i dont know why you'd use this otherwise)
 // author: josh stout <joshstout@gmail.com>
 
-import { IWebhookObject } from '../index'
+interface IWebhookObject {
+  id: string,
+  tags: string[],
+  url: string,
+  events: string[],
+  authentication: boolean,
+  authToken: string,
+  created: string,
+  modified: string
+}
 
 export class MemoryStorageProvider {
   db: IWebhookObject[]

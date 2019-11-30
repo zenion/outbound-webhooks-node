@@ -29,7 +29,7 @@ interface IWebhookObjectCreate {
   authToken?: string
 }
 
-export interface IWebhookObject {
+interface IWebhookObject {
   id: string,
   tags: string[],
   url: string,
@@ -40,7 +40,7 @@ export interface IWebhookObject {
   modified: string
 }
 
-export class Webhooks {
+class Webhooks {
   private config: IConfig
   private db: IStorageProvider
   emitter: EventEmitter
@@ -174,4 +174,4 @@ export class Webhooks {
   }
 }
 
-export default Webhooks
+export = Webhooks

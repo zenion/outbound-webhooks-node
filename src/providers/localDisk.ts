@@ -3,7 +3,16 @@
 
 import Conf from 'conf'
 
-import { IWebhookObject } from '../index'
+interface IWebhookObject {
+  id: string,
+  tags: string[],
+  url: string,
+  events: string[],
+  authentication: boolean,
+  authToken: string,
+  created: string,
+  modified: string
+}
 
 export class LocalDiskStorageProvider {
   db: Conf
