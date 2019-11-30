@@ -53,6 +53,10 @@ export class Webhooks {
     this.emitter = new EventEmitter()
   }
 
+  on (str: string, cb: (ctx: any) => void) {
+    return this.emitter.on(str, cb)
+  }
+
   async getAll () {
     return this.db.getAll()
   }
