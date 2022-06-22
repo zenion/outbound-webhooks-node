@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "conf": "^6.2.0",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
